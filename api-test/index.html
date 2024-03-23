@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+</head>
+<body>
+    <h1>API Test</h1>
+    <textarea id="responseTextArea" readonly></textarea>
+    <button id="fetchDataButton">Fetch Data</button>
+
+    <script>
+        document.getElementById('fetchDataButton').addEventListener('click', fetchData);
+
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:3000/api/user/'); // Update the URL to your API endpoint
+                const data = await response.json();
+                displayResponse(JSON.stringify(data, null, 2));
+            } catch (error) {
+                displayResponse(`Error: ${error.message}`);
+            }
+        }
+
+        function displayResponse(responseText) {
+            document.getElementById('responseTextArea').value = responseText;
+        }
+    </script>
+</body>
+</html>
