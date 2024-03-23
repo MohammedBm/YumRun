@@ -9,8 +9,24 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", async (req, res) => {
-  res.send("Hello, world!");
+
+
+
+
+//swagger doc for helathcheck
+/**
+  * @openapi
+  * /healthcheck:
+  *  get:
+  *     tags:
+  *     - Healthcheck
+  *     description: Responds if the app is up and running
+  *     responses:
+  *       200:
+  *         description: App is up and running
+  */
+app.get("/healthcheck", async (req, res) => {
+  res.sendStatus(200);
 });
 
 app.use('/api', router);
