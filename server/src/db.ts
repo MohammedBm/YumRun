@@ -6,7 +6,7 @@ const serviceAccount = require("../firebase/yumrun-6c523-firebase-adminsdk-faxsi
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
-console.log("Service account key file loaded successfully.");
+console.log("Firebase is up and runing.");
 const db = admin.firestore();
 
 export default db;

@@ -9,10 +9,6 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-
-
-
 //swagger doc for helathcheck
 /**
   * @openapi
