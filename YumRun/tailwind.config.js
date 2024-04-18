@@ -18,7 +18,10 @@ module.exports = {
     },
     extend: {
       colors: {
-        beep: "#6064aa",
+        beep: {
+          100: "#6064aa",
+          200: "#4F5297",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

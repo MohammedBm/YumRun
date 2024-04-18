@@ -1,14 +1,54 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './layouts/Layout'
+import HomePage from './pages/HomePage'
+import SignUpPage from './pages/SignUpPage'
+import { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from './firebase'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { AuthProvider } from './context/Auth'
+import { UserProfilePage } from './pages/UserProfilePage'
+import ManageStorePage from './pages/ManageStorePage'
 
 
 const AppRoutes = () => {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        return;
+      }
+
+      setUser(null);
+    });
+    return () => unsubscribe();
+  }, []);
+
+
+
   return (
-    <Routes>
-      <Route path="/" element={<Layout>Home Page</Layout>} />
-      <Route path="/user-profile" element={<span>User Profile Page</span>} />
-      <Route path="*" element={<Navigate to={'/'} />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Layout showHero><HomePage /></Layout>} />
+        <Route path='/signup' element={<Layout><SignUpPage user={user} /></Layout>} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/user-profile" element={
+            <Layout>
+              <UserProfilePage />
+            </Layout>
+          }
+          />
+          <Route path="/manage-store" element={
+            <Layout>
+              <ManageStorePage />
+            </Layout>
+          }
+          />
+        </Route>
+        <Route path="*" element={<Navigate to={'/'} />} />
+      </Routes>
+    </AuthProvider>
   )
 }
 

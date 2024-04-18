@@ -5,23 +5,29 @@
  *    CreateUser:
  *      type: object
  *      required:
- *        - name
- *        - age
+ *        - email
  *      properties:
+ *        email:
+ *          type: string
+ *          default: JohnDoe@email.com
  *        name:
  *          type: string
  *          default: John Doe
- *        age:
- *          type: integer
- *          default: 30
+ *        addressLine1:
+ *          type: string
+ *          default: 123 Main St
+ *        country:
+ *          type: string
+ *          default: USA
+ *        city:
+ *          type: string
+ *          default: New York
  *    CreateUserResponse:
  *      type: object
  *      properties:
  *        id:
  *          type: string
- *        name:
+ *        email:
  *          type: string
- *        age:
- *          type: integer
  */
 

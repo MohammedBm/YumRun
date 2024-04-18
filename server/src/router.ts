@@ -1,7 +1,8 @@
 import { Router } from "express";
 import db from "./db";
 const router = Router();
-import { createUser } from './controller/User.Controller'
+import { createUser, fetchUser, getAllUsers, updateCurrentUser } from './controller/User.Controller'
+import { createStore } from "./controller/Store.Controller";
 
 
 // routers are the supp ui for the app
@@ -44,49 +45,61 @@ import { createUser } from './controller/User.Controller'
  *      400:
  *        description: Bad request
  */
-router.get("/user", async (req, res) => {
-  try {
-    const usersRef = db.collection("users");
-    const snapshot = await usersRef.get();
-    const users = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      data: doc.data(),
-    }));
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get("/user", getAllUsers);
 
-router.get("/user/:id", async (req, res) => {
-  //get user by id
-  const userRef = db.collection("users").doc(req.params.id);
-  const doc = await userRef.get();
-  if (!doc.exists) {
-    res.status(404).json({ message: "User not found" });
-  } else {
-    res.json({ id: doc.id, data: doc.data() });
-  }
-});
-
-router.put("/user/:id", () => { });
-
-// post method
 router.post("/user", createUser);
+/**
+ * @openapi
+ * /api/user/:id:
+ *  get:
+ *    tags:
+ *    - User
+ *    description: Get all users
+ *    responses:
+ *      200:
+ *        description: A list of users
+ *      403:
+ *        description: Unauthorized
+ *  post:
+ *    tags:
+ *    - User
+ *    description: Create a new 
+ * 
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/CreateUser'
+ *    responses:
+ *      200:
+ *        description: User created
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/CreateUserResponse'
+ *      409:
+ *        description: User already exists
+ *      400:
+ *        description: Bad request
+ */
+router.get("/user/:id", fetchUser);
+
+router.put("/user/:id", updateCurrentUser);
 
 
 router.delete("/user/:id", () => { });
 
-//* Update Routers
-router.get("/update", () => { });
+//* Store Routers
+router.get("/store", () => { });
 
-router.get("/update/:id", () => { });
+router.get("/store/:id", () => { });
 
-router.put("/update/:id", () => { });
+router.put("/store/:id", () => { });
 
-router.post("update/", () => { });
+router.post("/store/", createStore);
 
-router.delete("/update/:id", () => { });
+router.delete("/store/:id", () => { });
 
 //* Update Point Route
 router.get("/updatepoint", () => { });
