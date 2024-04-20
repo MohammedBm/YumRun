@@ -19,6 +19,7 @@ export const UserProfilePage = () => {
   const [UserData, setUserData] = useState(null)
 
   const handleSave = async (UpdateMyUserRequest: userType) => {
+    console.log(UpdateMyUserRequest)
     if (currentUser) {
       setIsLoading(true)
       await fetch(`http://localhost:3000/api/user/${currentUser?.uid}`, {

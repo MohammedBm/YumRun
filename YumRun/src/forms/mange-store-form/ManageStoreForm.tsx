@@ -1,7 +1,7 @@
 import { Form } from '@/components/ui/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { any, z } from 'zod'
 import DetailsSection from './DetailsSection'
 import { Separator } from '@/components/ui/separator'
 import CuisinesSection from './CuisinesSection'
@@ -9,6 +9,9 @@ import MenuSection from './MenuSection'
 import ImageSection from './ImageSection'
 import LoadingButton from '@/components/LoadingButton'
 import { Button } from '@/components/ui/button'
+import { useContext } from 'react'
+import { AuthContext } from '@/context/Auth'
+import { Store } from 'lucide-react'
 
 const formSchema = z.object({
   storeName: z.string({
@@ -38,16 +41,38 @@ const formSchema = z.object({
   imageFile: z.instanceof(File, { message: 'image is required' }).optional(),
 })
 
-type FormData = z.infer<typeof formSchema>
+type StoreFormData = z.infer<typeof formSchema>
+
+export type Store = {
+  _id: string;
+  user: string;
+  storeName: string;
+  city: string;
+  country: string;
+  deliveryPrice: number;
+  deliveryTime: number;
+  cuisines: string[];
+  menuItems: MenuItem[];
+  imageUrl: string;
+  lastUpdated: string;
+};
+
+export type MenuItem = {
+  _id: string;
+  name: string;
+  price: number;
+};
 
 type Props = {
-  onSave: (userProfileData: FormData) => void
+  onSave: (storeFormData: FormData) => void;
   isLoading: boolean,
 }
 
 
-function ManageStoreForm({ onSave, isLoading }: props) {
-  const form = useForm<FormData>({
+function ManageStoreForm({ onSave, isLoading }: Props) {
+  const { currentUser } = useContext(AuthContext);
+
+  const form = useForm<StoreFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       cuisines: [],
@@ -55,13 +80,60 @@ function ManageStoreForm({ onSave, isLoading }: props) {
     }
   })
 
-  const onsubmit = (data: FormData) => {
-    //TODO: covert data to FormData
+  const onSubmit = (formDataJson: StoreFormData) => {
+    // turn formdatajson object into FormData
+    const dataF = {
+      storeName: '',
+      city: '',
+      country: '',
+      deliveryPrice: '',
+      deliveryTime: '',
+      imageFile: '',
+      user: '',
+      cuisines: [],
+      menuItems: [],
+    };
+
+    dataF.user = currentUser.uid;
+    dataF.storeName = formDataJson.storeName;
+    dataF.city = formDataJson.city;
+    dataF.country = formDataJson.country;
+    dataF.deliveryPrice = (formDataJson.deliveryPrice * 100).toString();
+    dataF.deliveryTime = formDataJson.deliveryTime.toString();
+    dataF.imageFile = formDataJson.imageFile ? formDataJson.imageFile : ' ';
+    dataF.cuisines = formDataJson.cuisines as string[];
+    dataF.menuItems = formDataJson.menuItems;
+
+    // formData.append("city", formDataJson.city);
+    // formData.append("country", formDataJson.country);
+
+    // formData.append(
+    //   "deliveryPrice",
+    //   (formDataJson.deliveryPrice * 100).toString()
+    // );
+    // formData.append(
+    //   "estimatedDeliveryTime",
+    //   formDataJson.deliveryTime.toString()
+    // );
+    // formDataJson.cuisines.forEach((cuisine, index) => {
+    //   formData.append(`cuisines[${index}]`, cuisine);
+    // });
+    // formDataJson.menuItems.forEach((menuItem, index) => {
+    //   formData.append(`menuItems[${index}][name]`, menuItem.name);
+    //   formData.append(
+    //     `menuItems[${index}][price]`,
+    //     (menuItem.price * 100).toString()
+    //   );
+    // });
+
+    // formData.append(`imageFile`, formDataJson.imageFile ? formDataJson.imageFile : '');
+
+    onSave(dataF)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onsubmit)} className='space-y-8 bg-gray-50 p-10 rounded-lg'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8 bg-gray-50 p-10 rounded-lg'>
         <DetailsSection />
         <Separator />
         <CuisinesSection />
