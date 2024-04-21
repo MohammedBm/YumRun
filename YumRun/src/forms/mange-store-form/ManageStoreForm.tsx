@@ -1,7 +1,7 @@
 import { Form } from '@/components/ui/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { any, z } from 'zod'
+import { any, set, z } from 'zod'
 import DetailsSection from './DetailsSection'
 import { Separator } from '@/components/ui/separator'
 import CuisinesSection from './CuisinesSection'
@@ -9,9 +9,13 @@ import MenuSection from './MenuSection'
 import ImageSection from './ImageSection'
 import LoadingButton from '@/components/LoadingButton'
 import { Button } from '@/components/ui/button'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '@/context/Auth'
 import { Store } from 'lucide-react'
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
+import { storage } from '@/firebase'
+import { v4 } from 'uuid'
+import { Item } from '@radix-ui/react-dropdown-menu'
 
 const formSchema = z.object({
   storeName: z.string({
@@ -64,14 +68,15 @@ export type MenuItem = {
 };
 
 type Props = {
+  store?: Store,
   onSave: (storeFormData: FormData) => void;
   isLoading: boolean,
 }
 
 
-function ManageStoreForm({ onSave, isLoading }: Props) {
+function ManageStoreForm({ onSave, isLoading, store }: Props) {
   const { currentUser } = useContext(AuthContext);
-
+  const [imageUrl, setImageUrl] = useState('')
   const form = useForm<StoreFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,8 +85,30 @@ function ManageStoreForm({ onSave, isLoading }: Props) {
     }
   })
 
-  const onSubmit = (formDataJson: StoreFormData) => {
+  useEffect(() => {
+    if (!store) {
+      return;
+    }
+
+    const deliveryPriceFormatted = parseInt((store.deliveryPrice / 100).toFixed(2));
+    const menuItemsFormatted = store.menuItems.map((item) => ({
+      ...item,
+      price: parseInt((item.price / 100).toFixed(2)),
+    }))
+
+    const updatedStore = {
+      ...store,
+      deliveryPrice: deliveryPriceFormatted,
+      menuItems: menuItemsFormatted,
+    }
+
+
+    form.reset(updatedStore)
+  }, [form, store])
+
+  const onSubmit = async (formDataJson: StoreFormData) => {
     // turn formdatajson object into FormData
+    //check firebase docs if user already has a store
     const dataF = {
       storeName: '',
       city: '',
@@ -94,39 +121,21 @@ function ManageStoreForm({ onSave, isLoading }: Props) {
       menuItems: [],
     };
 
+    const imgRef = ref(storage, `/store_image/${v4()}`)
+    await uploadBytes(imgRef, formDataJson.imageFile as Blob)
+    const url = await getDownloadURL(imgRef)
+    setImageUrl(url)
+
     dataF.user = currentUser.uid;
     dataF.storeName = formDataJson.storeName;
     dataF.city = formDataJson.city;
     dataF.country = formDataJson.country;
     dataF.deliveryPrice = (formDataJson.deliveryPrice * 100).toString();
     dataF.deliveryTime = formDataJson.deliveryTime.toString();
-    dataF.imageFile = formDataJson.imageFile ? formDataJson.imageFile : ' ';
+    dataF.imageFile = imageUrl ? imageUrl : ' ';
     dataF.cuisines = formDataJson.cuisines as string[];
     dataF.menuItems = formDataJson.menuItems;
 
-    // formData.append("city", formDataJson.city);
-    // formData.append("country", formDataJson.country);
-
-    // formData.append(
-    //   "deliveryPrice",
-    //   (formDataJson.deliveryPrice * 100).toString()
-    // );
-    // formData.append(
-    //   "estimatedDeliveryTime",
-    //   formDataJson.deliveryTime.toString()
-    // );
-    // formDataJson.cuisines.forEach((cuisine, index) => {
-    //   formData.append(`cuisines[${index}]`, cuisine);
-    // });
-    // formDataJson.menuItems.forEach((menuItem, index) => {
-    //   formData.append(`menuItems[${index}][name]`, menuItem.name);
-    //   formData.append(
-    //     `menuItems[${index}][price]`,
-    //     (menuItem.price * 100).toString()
-    //   );
-    // });
-
-    // formData.append(`imageFile`, formDataJson.imageFile ? formDataJson.imageFile : '');
 
     onSave(dataF)
   }

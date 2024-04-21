@@ -66,3 +66,41 @@ export const createStore = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Function to get the details of a store
+export const fetchStore = async (req, res) => {
+  try {
+    const storeQuery = db.collection('stores').where('user', '==', req.params.id);
+    const storeSnapshot = await storeQuery.get();
+    // Check if the query returned any documents
+    if (storeSnapshot.empty) {
+      return res.status(404).json({ message: 'Store not found' });
+    }
+
+    // Get the store data from the first document returned by the query
+    const storeData = storeSnapshot.docs[0].data();
+
+    // Get the menu items for the store
+    const menuItemsQuery = await storeSnapshot.docs[0].ref.collection('menuItems').get();
+    const menuItems = menuItemsQuery.docs.map((doc) => doc.data());
+
+    // Send the store data and menu items back to the client
+    //combine store and menuItems into one object
+
+
+
+    res.json({
+      ...storeData,
+      menuItems: menuItems,
+    });
+
+
+    // query that searches store collection for an object with req.params.id
+    // get the store object
+
+  } catch (error) {
+    // Send an error response back to the client
+    console.error('Error getting store and menu items:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
