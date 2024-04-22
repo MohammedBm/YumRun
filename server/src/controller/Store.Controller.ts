@@ -77,6 +77,7 @@ export const fetchStore = async (req, res) => {
       return res.status(404).json({ message: 'Store not found' });
     }
 
+
     // Get the store data from the first document returned by the query
     const storeData = storeSnapshot.docs[0].data();
 
@@ -86,21 +87,79 @@ export const fetchStore = async (req, res) => {
 
     // Send the store data and menu items back to the client
     //combine store and menuItems into one object
-
-
-
     res.json({
       ...storeData,
       menuItems: menuItems,
     });
-
-
     // query that searches store collection for an object with req.params.id
     // get the store object
-
   } catch (error) {
     // Send an error response back to the client
     console.error('Error getting store and menu items:', error);
     res.status(500).json({ error: error.message });
   }
 };
+
+export const updateStore = async (req, res) => {
+  try {
+    const { user, storeName, city, country, deliveryPrice, deliveryTime, cuisines, imageFile, menuItems } = req.body;
+    const storeRef = await db.collection('stores').where('user', '==', req.params.id).get();
+    if (storeRef.empty) {
+      return res.status(404).json({ message: 'Store not found, from update' });
+    }
+
+    const storeDoc = storeRef.docs[0];
+
+    storeDoc.ref.update({
+      user,
+      storeName,
+      city,
+      country,
+      deliveryPrice,
+      deliveryTime,
+      cuisines,
+      imageFile: req.body.imageFile,
+      lastUpdate: Date.now(),
+    }).then(() => {
+      const mref = db.collection('stores').doc(storeDoc.id);
+      const menuItemsCollectionRef = mref.collection('menuItems');
+      menuItemsCollectionRef.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          doc.ref.delete();
+        });
+      }).then(() => {
+        // Add new documents based on your current form values
+        for (const menuItem of req.body.menuItems) {
+          menuItemsCollectionRef.add(menuItem)
+            .then(() => {
+              console.log('Menu item added successfully');
+            })
+            .catch((error) => {
+              console.error('Error adding menu item:', error);
+            });
+        }
+      }).catch((error) => {
+        console.error('Error deleting menu items:', error);
+      });
+
+    })
+    res.json({
+      message: 'Store updated',
+      data: {
+        user,
+        storeName,
+        city,
+        country,
+        deliveryPrice,
+        deliveryTime,
+        cuisines,
+        menuItems,
+        imageFile,
+        lastUpdate: Date.now(),
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating store' });
+  }
+}

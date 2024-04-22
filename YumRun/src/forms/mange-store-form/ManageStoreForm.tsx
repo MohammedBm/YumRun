@@ -57,7 +57,7 @@ export type Store = {
   deliveryTime: number;
   cuisines: string[];
   menuItems: MenuItem[];
-  imageUrl: string;
+  imageFile: string;
   lastUpdated: string;
 };
 
@@ -76,7 +76,7 @@ type Props = {
 
 function ManageStoreForm({ onSave, isLoading, store }: Props) {
   const { currentUser } = useContext(AuthContext);
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageFile, setImageFile] = useState('')
   const form = useForm<StoreFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -124,7 +124,7 @@ function ManageStoreForm({ onSave, isLoading, store }: Props) {
     const imgRef = ref(storage, `/store_image/${v4()}`)
     await uploadBytes(imgRef, formDataJson.imageFile as Blob)
     const url = await getDownloadURL(imgRef)
-    setImageUrl(url)
+    setImageFile(url)
 
     dataF.user = currentUser.uid;
     dataF.storeName = formDataJson.storeName;
@@ -132,7 +132,7 @@ function ManageStoreForm({ onSave, isLoading, store }: Props) {
     dataF.country = formDataJson.country;
     dataF.deliveryPrice = (formDataJson.deliveryPrice * 100).toString();
     dataF.deliveryTime = formDataJson.deliveryTime.toString();
-    dataF.imageFile = imageUrl ? imageUrl : ' ';
+    dataF.imageFile = imageFile;
     dataF.cuisines = formDataJson.cuisines as string[];
     dataF.menuItems = formDataJson.menuItems;
 

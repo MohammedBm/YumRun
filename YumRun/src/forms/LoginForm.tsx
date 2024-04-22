@@ -26,7 +26,6 @@ const LoginForm = () => {
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     signInWithEmailAndPassword(auth, values.emailAddress, values.password).then((userCredential) => {
       const user = userCredential.user
-      console.log(user)
       toast({
         title: 'Logged in',
         description: 'You have been logged in',

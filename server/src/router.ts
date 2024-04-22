@@ -2,8 +2,8 @@ import { Router } from "express";
 import db from "./db";
 const router = Router();
 import { createUser, fetchUser, getAllUsers, updateCurrentUser } from './controller/User.Controller'
-import { createStore, fetchStore } from "./controller/Store.Controller";
-
+import { createStore, fetchStore, updateStore } from "./controller/Store.Controller";
+import { param } from "express-validator";
 
 // routers are the supp ui for the app
 // app is the whole API
@@ -95,21 +95,12 @@ router.get("/store", () => { });
 
 router.get("/store/:id", fetchStore);
 
-router.put("/store/:id", () => { });
+router.put("/store/:id", updateStore);
 
 router.post("/store/", createStore);
 
 router.delete("/store/:id", () => { });
 
-//* Update Point Route
-router.get("/updatepoint", () => { });
-
-router.get("/updatepoint/:id", () => { });
-
-router.put("/updatepoint/:id", () => { });
-
-router.post("updatepoint/", () => { });
-
-router.delete("/updatepoint/:id", () => { });
+//* Search routes
 
 export default router;

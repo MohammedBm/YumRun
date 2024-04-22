@@ -35,7 +35,6 @@ const SignUpPage = () => {
   const createAccount = (values: z.infer<typeof formSchema>) => {
     createUserWithEmailAndPassword(auth, values.emailAddress, values.password).then(async (userCredential) => {
       const user = userCredential.user;
-      console.log(user);
       if (user) {
         await fetch('http://localhost:3000/api/user', {
           method: 'POST',
