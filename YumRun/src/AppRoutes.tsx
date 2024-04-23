@@ -9,6 +9,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { AuthProvider } from './context/Auth'
 import { UserProfilePage } from './pages/UserProfilePage'
 import ManageStorePage from './pages/ManageStorePage'
+import { SearchPage } from './pages/SearchPage'
 
 
 const AppRoutes = () => {
@@ -32,6 +33,11 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Layout showHero><HomePage /></Layout>} />
         <Route path='/signup' element={<Layout><SignUpPage user={user} /></Layout>} />
+        <Route path='/search/:city' element={
+          <Layout showHero={false}>
+            <SearchPage />
+          </Layout>
+        } />
         <Route element={<ProtectedRoute />}>
           <Route path="/user-profile" element={
             <Layout>

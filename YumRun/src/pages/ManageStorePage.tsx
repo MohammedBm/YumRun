@@ -4,27 +4,9 @@ import React, { useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import { collection, doc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { connectStorageEmulator } from 'firebase/storage';
 
-export type MenuItem = {
-  _id: string;
-  name: string;
-  price: number;
-};
 
-export type Store = {
-  _id: string;
-  user: string;
-  storeName: string;
-  city: string;
-  country: string;
-  deliveryPrice: number;
-  deliveryTime: number;
-  cuisines: string[];
-  menuItems: MenuItem[];
-  imageFile: string;
-  lastUpdated: string;
-};
+
 
 type Props = {
   store: Store | null,

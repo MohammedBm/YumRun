@@ -1,20 +1,24 @@
-import React from 'react'
+// @ts-nocheck
+import React, { useEffect, useState } from 'react'
 import takeaway from '../assets/takeaway.svg'
 import deliver from '../assets/deliver.svg'
 import SearchBar, { SearchForm } from '@/components/SearchBar'
 import { useNavigate } from 'react-router-dom'
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { db } from '@/firebase'
 
 const HomePage = () => {
   const naviagte = useNavigate();
-
   const handleSearchSubmit = (searchFormVlaues: SearchForm) => {
     naviagte({
       pathname: `/search/${searchFormVlaues.searchQuery}`,
     })
   }
+
+
   return (
     <div className="flex flex-col gap-12">
-      <div className="bg-white rounded-lg shadow-md py-8 flex flex-col gap-5 text-center -mt-16">
+      <div className="md:px-32 bg-white rounded-lg shadow-md py-8 flex flex-col gap-5 text-center -mt-16">
         <h1 className="text-3xl font-bold tracking-tight text-beep-200">
           YumRun: Delicious Meals Delivered to Your Doorstep!
         </h1>

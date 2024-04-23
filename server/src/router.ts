@@ -91,7 +91,7 @@ router.put("/user/:id", updateCurrentUser);
 router.delete("/user/:id", () => { });
 
 //* Store Routers
-router.get("/store", () => { });
+router.get("/store",);
 
 router.get("/store/:id", fetchStore);
 
