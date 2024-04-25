@@ -3,6 +3,7 @@ import PaginationSelector from "@/components/PaginationSelector";
 import SearchBar, { SearchForm } from "@/components/SearchBar";
 import SearchResultCard from "@/components/SearchResultCard";
 import SearchResultInfo from "@/components/SearchResultInfo";
+import SortOptionDropdown from "@/components/SortOptionDropdown";
 import { db } from "@/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -13,20 +14,20 @@ export type SearchState = {
   searchQuery: string;
   page: number;
 };
-
 export const SearchPage = () => {
   const { city } = useParams();
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [originalResults, setOriginalResults] = useState([]);
   const [filteredResults, setFilteredResults] = useState([]); // New state for filtered results
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]); // New state to store selected cuisines
+  const [totalPages, setTotalPages] = useState(1); // State to store total pages
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [sortOption, setSortOption] = useState<string>("bestMatch"); // State to store the selected sort option
   const [searchState, setSearchState] = useState<SearchState>({
     searchQuery: "",
     page: 1,
   });
-  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]); // New state to store selected cuisines
-  const [totalPages, setTotalPages] = useState(1); // State to store total pages
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     const handleSearch = async () => {
@@ -75,7 +76,7 @@ export const SearchPage = () => {
 
   const setSearchQuery = (searchFormData: SearchForm) => {
     // Filter results by the search query using cuisines array and name
-    const filteredResults = originalResults.filter((store) => {
+    let filteredResults = originalResults.filter((store) => {
       const cuisines = store.cuisines.map((cuisine) => cuisine.toLowerCase());
       return (
         store.storeName
@@ -87,7 +88,9 @@ export const SearchPage = () => {
       );
     });
 
-    // Update results with filtered results
+    // Apply sorting based on the selected sort option
+
+    // Update results with filtered and sorted results
     setResults(filteredResults.slice(0, 5));
     setFilteredResults(filteredResults); // Update filtered results state
 
@@ -123,6 +126,46 @@ export const SearchPage = () => {
     }));
   };
 
+  const handleSortOption = (option: string) => {
+    setSortOption(option);
+    switch (option) {
+      case "bestMatch":
+        filterResultsBySearch();
+        break;
+      case "deliveryPrice":
+        sortByDeliveryPrice();
+        break;
+      case "deliveryTime":
+        sortByDeliveryTime();
+        break;
+      // Add more cases for other sort options as needed
+      default:
+        break;
+    }
+    setSearchState((prevState) => ({
+      ...prevState,
+      page: 1,
+    }));
+  };
+
+  const filterResultsBySearch = () => {
+    // Apply search query filter if search query is provided
+  };
+
+  const sortByDeliveryPrice = () => {
+    const sortedResults = [...filteredResults].sort(
+      (a, b) => a.deliveryPrice - b.deliveryPrice
+    );
+    setFilteredResults(sortedResults);
+  };
+
+  const sortByDeliveryTime = () => {
+    const sortedResults = [...filteredResults].sort(
+      (a, b) => a.deliveryTime - b.deliveryTime
+    );
+    setFilteredResults(sortedResults);
+  };
+
   if (!results || !city) {
     return <span>No results found</span>;
   }
@@ -151,7 +194,14 @@ export const SearchPage = () => {
           placeholder="Search by store name, cuisine..."
           onReset={resetSearch}
         />
-        <SearchResultInfo total={filteredResults.length} city={city} />
+        <div className="flex justify-between flex-col gap-3 lg:flex-row">
+          <SearchResultInfo total={filteredResults.length} city={city} />
+          <SortOptionDropdown
+            sortOption={sortOption}
+            onChange={handleSortOption}
+          />
+        </div>
+
         {results.map((store) => (
           <SearchResultCard key={store.id} store={store} />
         ))}

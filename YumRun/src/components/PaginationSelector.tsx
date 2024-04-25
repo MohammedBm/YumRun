@@ -25,8 +25,6 @@ const PaginationSelector = ({
     pageNumbers.push(i);
   }
 
-  console.log(page);
-
   // Hide pagination controls if filtered results are 0
   if (filteredResults === 0) {
     return null;

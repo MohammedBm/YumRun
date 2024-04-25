@@ -1,17 +1,20 @@
-import { Store } from "@/types"
-import { Link } from "react-router-dom"
-import { AspectRatio } from "./ui/aspect-ratio"
-import { Banknote, Clock, Dot } from "lucide-react"
+import { Store } from "@/types";
+import { Link } from "react-router-dom";
+import { AspectRatio } from "./ui/aspect-ratio";
+import { Banknote, Clock, Dot } from "lucide-react";
 
 type Props = {
-  store: Store,
-}
+  store: Store;
+};
 
 const SearchResultCard = ({ store }: Props) => {
   return (
     <Link
-      to={`/detail/${store._id}`}
+      to={`/detail/${store.id}`}
       className="grid lg:grid-cols-[2fr_3fr] gap-5 group"
+      // onClick={() => {
+      //   console.log(store);
+      // }}
     >
       <AspectRatio ratio={16 / 6}>
         <img
@@ -45,8 +48,7 @@ const SearchResultCard = ({ store }: Props) => {
         </div>
       </div>
     </Link>
-  )
-}
+  );
+};
 
-
-export default SearchResultCard
+export default SearchResultCard;

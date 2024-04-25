@@ -163,3 +163,24 @@ export const updateStore = async (req, res) => {
     res.status(500).json({ message: 'Error updating store' });
   }
 }
+
+export const fetchStoreById = async (req, res) => {
+  try {
+    const storeRef = await db.collection('stores').doc(req.params.id).get();
+    if (!storeRef.exists) {
+      return res.status(404).json({ message: 'Store not found' });
+    }
+
+    const storeData = storeRef.data();
+    const menuItemsQuery = await storeRef.ref.collection('menuItems').get();
+    const menuItems = menuItemsQuery.docs.map((doc) => doc.data());
+
+    res.json({
+      ...storeData,
+      menuItems: menuItems,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching store' });
+  }
+}

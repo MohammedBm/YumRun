@@ -2,7 +2,7 @@ import { Router } from "express";
 import db from "./db";
 const router = Router();
 import { createUser, fetchUser, getAllUsers, updateCurrentUser } from './controller/User.Controller'
-import { createStore, fetchStore, updateStore } from "./controller/Store.Controller";
+import { createStore, fetchStore, fetchStoreById, updateStore } from "./controller/Store.Controller";
 import { param } from "express-validator";
 
 // routers are the supp ui for the app
@@ -94,6 +94,8 @@ router.delete("/user/:id", () => { });
 router.get("/store",);
 
 router.get("/store/:id", fetchStore);
+
+router.get("/storeid/:id", fetchStoreById);
 
 router.put("/store/:id", updateStore);
 

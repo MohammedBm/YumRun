@@ -3,6 +3,7 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { ChangeEvent } from "react";
 import { Button } from "./ui/button";
 import { cuisineList } from "@/config/Store-options";
+
 type Props = {
   onChange: (cuisines: string[]) => void;
   selectedCuisines: string[];
