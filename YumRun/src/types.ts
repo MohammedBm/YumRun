@@ -16,7 +16,7 @@ export type Store = {
 
 
 export type MenuItem = {
-  _id: string;
+  id: string;
   name: string;
   price: number;
 };

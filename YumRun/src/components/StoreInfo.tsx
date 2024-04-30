@@ -13,7 +13,6 @@ type Props = {
 };
 
 export const StoreInfo = ({ store }: Props) => {
-  console.log(store);
   return (
     <Card className="border-sla">
       <CardHeader>

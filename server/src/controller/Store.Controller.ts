@@ -173,7 +173,13 @@ export const fetchStoreById = async (req, res) => {
 
     const storeData = storeRef.data();
     const menuItemsQuery = await storeRef.ref.collection('menuItems').get();
-    const menuItems = menuItemsQuery.docs.map((doc) => doc.data());
+    // fetch menu item with their respective menuItem id
+    const menuItems = menuItemsQuery.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      }
+    });
 
     res.json({
       ...storeData,
