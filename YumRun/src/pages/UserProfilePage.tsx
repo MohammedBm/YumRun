@@ -41,6 +41,7 @@ export const UserProfilePage = () => {
     }
   };
   //fetch user data once
+
   const getUserData = async () => {
     if (currentUser) {
       setisGetLoading(true);

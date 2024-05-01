@@ -1,10 +1,14 @@
+import { useCreateCheckoutSession } from "@/api/OrderApi";
 import { CheckoutButton } from "@/components/CheckoutButton";
 import { MenuItem } from "@/components/MenuItem";
 import { OrderSummary } from "@/components/OrderSummary";
 import { StoreInfo } from "@/components/StoreInfo";
 import { Card, CardFooter } from "@/components/ui/card";
+import { auth } from "@/firebase";
 import { MenuItem as MenuItemType, Store } from "@/types";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
+import { UserProfile } from "firebase/auth";
+import { User, WindIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -16,10 +20,16 @@ export type CartItem = {
 };
 
 export const DetailPage = ({}) => {
-  const { id } = useParams();
+  const { storeId } = useParams();
   const [store, setStore] = useState<Store>(null);
   const [isGetLoading, setisGetLoading] = useState(true);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { createCheckoutSession, isLoading: isCheckoutLoading } =
+    useCreateCheckoutSession();
+
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const storedeCartItems = sessionStorage.getItem(`cartItems-${storeId}`);
+    return storedeCartItems ? JSON.parse(storedeCartItems) : [];
+  });
 
   const addToCart = (menuItem: MenuItemType) => {
     console.log(menuItem);
@@ -48,6 +58,11 @@ export const DetailPage = ({}) => {
         ];
       }
 
+      sessionStorage.setItem(
+        `cartItems-${storeId}`,
+        JSON.stringify(updatedCartItems)
+      );
+
       return updatedCartItems;
     });
   };
@@ -58,13 +73,17 @@ export const DetailPage = ({}) => {
         (item) => cartItem.id !== item.id
       );
 
+      sessionStorage.setItem(
+        `cartItems-${storeId}`,
+        JSON.stringify(updatedCartItems)
+      );
       return updatedCartItems;
     });
   };
 
   const fetchStore = async () => {
     setisGetLoading(true);
-    await fetch(`http://localhost:3000/api/storeid/${id}`, {
+    await fetch(`http://localhost:3000/api/storeid/${storeId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -81,16 +100,40 @@ export const DetailPage = ({}) => {
         setisGetLoading(false);
       });
   };
-  // Fetch store by id
+
+  const onCheckout = async (userFormData: UserProfile) => {
+    if (!store) {
+      return;
+    }
+    // 6.93
+    const checkoutData = {
+      cartItems: cartItems.map((cartItem) => ({
+        menuItemId: cartItem.id,
+        name: cartItem.name,
+        quantity: cartItem.quantity.toString(),
+      })),
+      storeId: storeId,
+      deliveryDetails: {
+        name: userFormData.name,
+        addressLine1: userFormData.addressLine1,
+        city: userFormData.city,
+        country: userFormData.country,
+        email: userFormData.email as string,
+      },
+    };
+
+    const data = await createCheckoutSession(checkoutData);
+    window.location.href = data.url;
+  };
 
   useEffect(() => {
     fetchStore();
   }, []);
-
+  console.log(auth);
   if (isGetLoading) return <div>Loading...</div>;
   return (
     <div className="flex flex-col gap-10">
-      <h1>{id}</h1>
+      <h1>{storeId}</h1>
       <AspectRatio ratio={16 / 5}>
         <img
           src={store?.imageFile}
@@ -121,7 +164,11 @@ export const DetailPage = ({}) => {
             />
 
             <CardFooter>
-              <CheckoutButton />
+              <CheckoutButton
+                isLoading={isCheckoutLoading}
+                disabled={cartItems.length === 0}
+                onCheckout={onCheckout}
+              />
             </CardFooter>
           </Card>
         </div>

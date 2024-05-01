@@ -67,8 +67,8 @@ export const createStore = async (req, res) => {
   }
 };
 
-// Function to get the details of a store
-export const fetchStore = async (req, res) => {
+// Function to get the details of a store by the user ID
+export const fetchStorebyUserId = async (req, res) => {
   try {
     const storeQuery = db.collection('stores').where('user', '==', req.params.id);
     const storeSnapshot = await storeQuery.get();
@@ -164,6 +164,7 @@ export const updateStore = async (req, res) => {
   }
 }
 
+
 export const fetchStoreById = async (req, res) => {
   try {
     const storeRef = await db.collection('stores').doc(req.params.id).get();
@@ -180,6 +181,7 @@ export const fetchStoreById = async (req, res) => {
         ...doc.data()
       }
     });
+
 
     res.json({
       ...storeData,

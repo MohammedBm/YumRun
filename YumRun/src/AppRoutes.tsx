@@ -55,7 +55,7 @@ const AppRoutes = () => {
         />
 
         <Route
-          path="/detail/:id"
+          path="/detail/:storeId"
           element={
             <Layout showHero={false}>
               <DetailPage />

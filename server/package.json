@@ -25,6 +25,7 @@
     "openapi-typescript": "^6.7.5",
     "pino": "^8.19.0",
     "pino-pretty": "^11.0.0",
+    "stripe": "^15.4.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "tsoa": "^6.1.5"

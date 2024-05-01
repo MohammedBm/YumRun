@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { auth } from "@/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import {
@@ -11,66 +11,85 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
+import LoginForm from "@/forms/LoginForm";
+import UserProfileForm from "@/forms/profile-forms/UserProfileForm";
+import LoadingButton from "./LoadingButton";
 
-export const CheckoutButton = () => {
+type Props = {
+  onCheckout: (userFormData: UserFormData) => void;
+  disabled: boolean;
+  isLoading: boolean;
+};
+
+export const CheckoutButton = ({ disabled, onCheckout, isLoading }: Props) => {
   const [showDialog, setShowDialog] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [isGetLoading, setisGetLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
 
-  const handleSignIn = async () => {
-    try {
-      // Sign in with email and password
-      signInWithEmailAndPassword(auth, email, password);
-      // Close the dialog after successful sign-in
-      setShowDialog(false);
-    } catch (error) {
-      setError(error.message);
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const getUserData = async () => {
+    if (auth.currentUser) {
+      setisGetLoading(true);
+      await fetch(`http://localhost:3000/api/user/${auth.currentUser?.uid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setisGetLoading(false);
+          setUserData(data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          setisGetLoading(false);
+        });
     }
   };
 
+  if (isGetLoading || !auth.currentUser || isLoading) return <LoadingButton />;
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild className="">
-          <Button variant="outline">Edit Profile</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                defaultValue="Pedro Duarte"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Username
-              </Label>
-              <Input
-                id="username"
-                defaultValue="@peduarte"
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {!auth.currentUser ? (
+        <Dialog>
+          <DialogTrigger asChild className="">
+            <Button
+              className="w-full bg-beep-100 text-white"
+              variant="outline"
+              onClick={() => setShowDialog(true)}
+            >
+              Log in to Checkout
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-[425px] md:min-w-[700px] bg-gray-50">
+            <LoginForm />
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              disabled={disabled}
+              className="bg-beep-100 flexe-1 w-full text-white"
+            >
+              Go to Checkout
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-[425px] md:min-w-[700px] bg-gray-50">
+            <UserProfileForm
+              user={userData}
+              onSave={onCheckout}
+              isLoading={isGetLoading}
+              title="Confirm Delivery Details"
+              buttonText="Continue to Payment"
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };
