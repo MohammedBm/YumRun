@@ -1,6 +1,21 @@
 // Import necessary Firebase modules
 import db from '../db'; // Adjust import path as needed
 
+
+// get all stores
+export const getAllStores = async (req, res) => {
+  try {
+    const storeQuery = db.collection('stores');
+    const storeSnapshot = await storeQuery.get();
+    const stores = storeSnapshot.docs.map((doc) => doc.data());
+    res.json(stores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching stores' });
+  }
+};
+
+
 // Function to create a new store if the user does not already own one
 export const createStore = async (req, res) => {
   try {
