@@ -14,6 +14,7 @@ type CheckoutSessionRequest = {
     city: string;
   };
   storeId: string;
+  userId: string;
 };
 
 export const useCreateCheckoutSession = () => {

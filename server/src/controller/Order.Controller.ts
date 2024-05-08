@@ -18,13 +18,20 @@ type CheckoutSessionRequest = {
     addressLine1: string
     city: string
   }
-  storeId: string
+  storeId: string,
+  userId: string
+}
+
+export const stripeWebhookHandler = async (req: Request, res: Response) => {
+  console.log("RECIVED EVENT")
+  console.log("====================================")
+  console.log("event: ", req.body)
+  res.send()
 }
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const checkoutSessionRequest: CheckoutSessionRequest = req.body
-
     //fetch restaurant by id
     const storeRef = await db.collection('stores').doc(checkoutSessionRequest.storeId).get();
     const storeData = storeRef.data();
@@ -46,13 +53,26 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       throw new Error('Store not found')
     }
 
+
+    // createee new order with store info and user info
+    const newOrder = await db.collection('orders').add({
+      store: store,
+      user: checkoutSessionRequest.userId,
+      status: 'placed',
+      deliveryDetails: checkoutSessionRequest.deliveryDetails,
+      cartItems: checkoutSessionRequest.cartItems,
+      createdAt: new Date()
+    })
+
+    // console.log(checkoutSessionRequest.userId)
     const lineItems = createLineItems(checkoutSessionRequest, store.menuItems)
-    const session = await createSession(lineItems, "TEST_ORDER_ID", store.deliveryPrice, store._id)
+    const session = await createSession(lineItems, newOrder.id, store.deliveryPrice, store._id)
 
     if (!session.url) {
       return res.status(500).json({ message: 'Error creating stripe session' })
     }
 
+    await newOrder;
     res.json({ url: session.url })
   } catch (error: any) {
     console.error(error)
@@ -69,7 +89,7 @@ const createLineItems = (checkoutSessionRequest: CheckoutSessionRequest, menuIte
       throw new Error(`Menu item not found ${cartItem.menuItemId}`)
     }
 
-    console.log(menuItem)
+    // console.log(menuItem)
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
         currency: "usd",

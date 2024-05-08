@@ -32,7 +32,7 @@ export const createStore = async (req, res) => {
     // // Reference to the new store document in the Firestore database
     const storeRef = db.collection('stores').doc(storeId);
 
-    console.log(storeId)
+    // console.log(storeId)
     // Set the store data
     await storeRef.set({
       user: req.body.user,

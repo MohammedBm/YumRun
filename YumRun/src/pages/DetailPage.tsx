@@ -113,6 +113,7 @@ export const DetailPage = ({}) => {
         quantity: cartItem.quantity.toString(),
       })),
       storeId: storeId,
+      userId: auth.currentUser.uid,
       deliveryDetails: {
         name: userFormData.name,
         addressLine1: userFormData.addressLine1,
