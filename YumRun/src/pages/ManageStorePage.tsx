@@ -1,19 +1,17 @@
-import { AuthContext } from '@/context/Auth';
-import ManageStoreForm from '@/forms/mange-store-form/ManageStoreForm'
-import React, { useContext, useEffect, useState } from 'react'
-import { toast } from 'sonner';
-import { collection, doc, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/firebase';
+import { AuthContext } from "@/context/Auth";
+import ManageStoreForm from "@/forms/mange-store-form/ManageStoreForm";
+import { useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/firebase";
 
-
-
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 type Props = {
-  store: Store | null,
+  store: Store | null;
   onSave: (storeFormData: FormData) => void;
-  isLoading: boolean,
-}
-
+  isLoading: boolean;
+};
 
 const ManageStorePage = () => {
   const { currentUser } = useContext(AuthContext);
@@ -25,77 +23,78 @@ const ManageStorePage = () => {
 
   const onSaveStore = async (storeFormData: FormData) => {
     // Query the 'stores' collection to find a store with the user's ID
-    const storeRef = collection(db, 'stores');
-    const q = query(storeRef, where('user', '==', currentUser.uid));
+    const storeRef = collection(db, "stores");
+    const q = query(storeRef, where("user", "==", currentUser.uid));
     try {
       const querySnapshot = await getDocs(q);
 
       // Check if a store already exists for the current user
       if (!querySnapshot.empty) {
-        toast.error('Store already exists');
+        toast.error("Store already exists");
         return;
       }
       // If store doesn't exist, send a POST request to your API endpoint
-      const response = await fetch('http://localhost:3000/api/store/', {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/store/`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(storeFormData)
+        body: JSON.stringify(storeFormData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save store data');
+        throw new Error("Failed to save store data");
       }
 
-      toast.success('Store data uploaded successfully');
+      toast.success("Store data uploaded successfully");
     } catch (error) {
-      console.error('Error uploading store data:', error);
-      toast.error('Error uploading store data');
+      console.error("Error uploading store data:", error);
+      toast.error("Error uploading store data");
     }
-  }
+  };
 
   const getStore = async () => {
     if (currentUser) {
-      setIsGetLoading(true)
-      await fetch(`http://localhost:3000/api/store/${currentUser?.uid}`, {
-        method: 'GET',
+      setIsGetLoading(true);
+      await fetch(`${API_URL}/api/store/${currentUser?.uid}`, {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then((response) => response.json())
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
         .then((data) => {
-          setIsGetLoading(false)
-          setIsFormFilled(true)
-          setStore(data)
+          setIsGetLoading(false);
+          setIsFormFilled(true);
+          setStore(data);
         })
         .catch((error) => {
-          console.error('Error:', error)
-          setIsGetLoading(false)
-
-        })
+          console.error("Error:", error);
+          setIsGetLoading(false);
+        });
     }
-  }
+  };
 
   const updateStore = async (storeFormData: FormData) => {
-    setIsLoading(true)
-    await fetch(`http://localhost:3000/api/store/${currentUser?.uid}`, {
-      method: 'PUT',
+    setIsLoading(true);
+    await fetch(`${API_URL}/api/store/${currentUser?.uid}`, {
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(storeFormData)
-    }).then((response) => response.json())
+      body: JSON.stringify(storeFormData),
+    })
+      .then((response) => response.json())
       .then((data) => {
-        setIsLoading(false)
-        toast.success('Store data updated successfully')
+        setIsLoading(false);
+        toast.success("Store data updated successfully");
       })
       .catch((error) => {
-        console.error('Error:', error)
-        setIsLoading(false)
-        toast.error('Error updating store data')
-      })
-  }
+        console.error("Error:", error);
+        setIsLoading(false);
+        toast.error("Error updating store data");
+      });
+  };
 
   const handleSubmit = async (storeFormData: FormData) => {
     if (isFormFilled) {
@@ -106,12 +105,12 @@ const ManageStorePage = () => {
   };
 
   useEffect(() => {
-    getStore()
-  }, [currentUser])
+    getStore();
+  }, [currentUser]);
   // ...
 
   if (isGetLoading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
   return (
     <ManageStoreForm
@@ -121,7 +120,7 @@ const ManageStorePage = () => {
       setIsLoading={setIsLoading}
       isLoading={isLoading}
     />
-  )
-}
+  );
+};
 
-export default ManageStorePage
+export default ManageStorePage;

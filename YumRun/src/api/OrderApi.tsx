@@ -1,5 +1,9 @@
-import { useMutation } from "react-query";
+import { auth } from "@/firebase";
+import { Order } from "@/types";
+import { useMutation, useQuery } from "react-query";
 import { toast } from "sonner";
+
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 type CheckoutSessionRequest = {
   cartItems: {
@@ -22,7 +26,7 @@ export const useCreateCheckoutSession = () => {
     checkoutSessionRequest: CheckoutSessionRequest
   ) => {
     const response = await fetch(
-      `http://localhost:3000/api/order/checkout/create-checkout-session`,
+      `${API_URL}/api/order/checkout/create-checkout-session`,
       {
         method: "POST",
         headers: {
@@ -56,4 +60,32 @@ export const useCreateCheckoutSession = () => {
     createCheckoutSession,
     isLoading,
   };
+};
+
+export const useGetMyOrders = () => {
+  const getMyOrdersRequest = async (): Promise<Order[]> => {
+    const response = await fetch(`${API_URL}/api/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: auth.currentUser?.uid }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get orders");
+    }
+
+    return response.json();
+  };
+
+  const { data: orders, isLoading } = useQuery(
+    "fetchMyOrders",
+    getMyOrdersRequest,
+    {
+      refetchInterval: 5000,
+    }
+  );
+
+  return { orders, isLoading };
 };

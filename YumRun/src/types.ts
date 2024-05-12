@@ -20,3 +20,31 @@ export type MenuItem = {
   name: string;
   price: number;
 };
+
+export type OrderStatus =
+  | "placed"
+  | "paid"
+  | "inProgress"
+  | "outForDelivery"
+  | "delivered";
+
+export type Order = {
+  id: string;
+  user: string;
+  total: number;
+  status: OrderStatus;
+  createdAt: string;
+  cartItems: {
+    menuItemId: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }[];
+  deliveryDetails: {
+    email: string;
+    name: string;
+    addressLine1: string;
+    city: string;
+  };
+  store: Store
+};

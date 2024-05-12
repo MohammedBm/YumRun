@@ -4,9 +4,15 @@ import morgan from "morgan";
 import cors from "cors";
 
 const app = express();
-const db = app.use(cors());
+app.use(cors());
 app.use(morgan("dev"));
-app.use(express.json());
+
+//!! fixes the issue with stripe webhook caused by req.body being undefined
+app.use('/api/order/checkout/webhook', express.raw({ type: '*/*' })); //!! important
+
+//!! DO NOT CHANGE THE ORDER OF THESE MIDDLEWARES
+app.use(express.json()); //!! this must be under the webook middleware
+
 app.use(express.urlencoded({ extended: true }));
 
 //swagger doc for helathcheck
@@ -26,11 +32,5 @@ app.get("/healthcheck", async (req, res) => {
 });
 
 app.use('/api', router);
-// why didn't we put the signup and signin routes in the router?
-// because we don't want to protect the signup and signin routes
-// we want to allow users to access these routes without a token
-// so we put them outside of the router
-// app.post('/user', createNewUser)
-// app.post('/signin', signin)
 
 export default app;

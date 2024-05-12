@@ -1,10 +1,10 @@
 import Stripe from 'stripe';
-import { Request, Response } from 'express'
 import db from '../db';
 require('dotenv').config()
 
 const STRIPE = new Stripe(process.env.STRIPE_API_KEY)
 const FRONTEND_URL = process.env.FRONTEND_URL
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
 
 type CheckoutSessionRequest = {
   cartItems: {
@@ -22,14 +22,53 @@ type CheckoutSessionRequest = {
   userId: string
 }
 
-export const stripeWebhookHandler = async (req: Request, res: Response) => {
-  console.log("RECIVED EVENT")
-  console.log("====================================")
-  console.log("event: ", req.body)
-  res.send()
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await db.collection('orders').where('user', '==', req.body.userId).get()
+    const ordersData = orders.docs.map((order) => {
+      return {
+        id: order.id,
+        ...order.data()
+      }
+    })
+    res.json(ordersData)
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: error });
+  }
 }
 
-export const createCheckoutSession = async (req: Request, res: Response) => {
+export const stripeWebhookHandler = async (req, res) => {
+  let event;
+
+  try {
+    const sig = req.headers["stripe-signature"];
+    event = STRIPE.webhooks.constructEvent(
+      req.body,
+      sig as string,
+      process.env.STRIPE_WEBHOOK_SECRET as string
+    );
+  } catch (error: any) {
+    console.log("error message is here =====> ", error.message);
+    return res.status(400).send(`Webhook error: ${error.message}`);
+  }
+
+
+  if (event.type === 'checkout.session.completed') {
+    const order = await db.collection('orders').doc(event.data.object.metadata.orderId).get()
+
+    if (!order.exists) {
+      return res.status(404).json({ message: 'Order not found' })
+    }
+
+    await order.ref.update({ status: 'paid', totalAmount: event.data.object.amount_total })
+  }
+
+  res.status(200).send()
+}
+
+export const createCheckoutSession = async (req, res) => {
   try {
     const checkoutSessionRequest: CheckoutSessionRequest = req.body
     //fetch restaurant by id
@@ -43,6 +82,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       }
     });
     // store with menuItems
+
     const store = {
       ...storeData,
       _id: storeRef.id,
@@ -132,3 +172,4 @@ const createSession = async (lineItems: Stripe.Checkout.SessionCreateParams.Line
 
   return sessionData
 }
+

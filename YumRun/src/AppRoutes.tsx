@@ -11,6 +11,7 @@ import { UserProfilePage } from "./pages/UserProfilePage";
 import ManageStorePage from "./pages/ManageStorePage";
 import { SearchPage } from "./pages/SearchPage";
 import { DetailPage } from "./pages/DetailPage";
+import { OrderStatusPage } from "./pages/OrderStatusPage";
 
 const AppRoutes = () => {
   const [user, setUser] = useState(null);
@@ -64,6 +65,14 @@ const AppRoutes = () => {
         />
         {/* protected routes */}
         <Route element={<ProtectedRoute />}>
+          <Route
+            path="/order-status"
+            element={
+              <Layout>
+                <OrderStatusPage />
+              </Layout>
+            }
+          />
           <Route
             path="/user-profile"
             element={

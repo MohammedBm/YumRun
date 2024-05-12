@@ -8,9 +8,10 @@ import { auth } from "@/firebase";
 import { MenuItem as MenuItemType, Store } from "@/types";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import { UserProfile } from "firebase/auth";
-import { User, WindIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export type CartItem = {
   id: string;
@@ -83,7 +84,7 @@ export const DetailPage = ({}) => {
 
   const fetchStore = async () => {
     setisGetLoading(true);
-    await fetch(`http://localhost:3000/api/storeid/${storeId}`, {
+    await fetch(`${API_URL}/api/storeid/${storeId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -105,7 +106,7 @@ export const DetailPage = ({}) => {
     if (!store) {
       return;
     }
-    // 6.93
+
     const checkoutData = {
       cartItems: cartItems.map((cartItem) => ({
         menuItemId: cartItem.id,
@@ -130,7 +131,7 @@ export const DetailPage = ({}) => {
   useEffect(() => {
     fetchStore();
   }, []);
-  console.log(auth);
+
   if (isGetLoading) return <div>Loading...</div>;
   return (
     <div className="flex flex-col gap-10">
@@ -147,7 +148,7 @@ export const DetailPage = ({}) => {
         <div className="flex flex-col gap-4">
           <StoreInfo store={store} />
           <span className="text-2xl font-bold tracking-tightt">Menu</span>
-          {store.menuItems.map((menuItem) => (
+          {store.menuItems?.map((menuItem) => (
             <MenuItem
               menuItem={menuItem}
               addToCart={() => addToCart(menuItem)}

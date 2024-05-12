@@ -3,6 +3,8 @@ import UserProfileForm from "@/forms/profile-forms/UserProfileForm";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 type userType = {
   name: string;
   addressLine1: string;
@@ -22,7 +24,7 @@ export const UserProfilePage = () => {
     // console.log(UpdateMyUserRequest)
     if (currentUser) {
       setIsLoading(true);
-      await fetch(`http://localhost:3000/api/user/${currentUser?.uid}`, {
+      await fetch(`${API_URL}/api/user/${currentUser?.uid}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -45,7 +47,7 @@ export const UserProfilePage = () => {
   const getUserData = async () => {
     if (currentUser) {
       setisGetLoading(true);
-      await fetch(`http://localhost:3000/api/user/${currentUser?.uid}`, {
+      await fetch(`${API_URL}/api/user/${currentUser?.uid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

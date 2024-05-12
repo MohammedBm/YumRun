@@ -16,6 +16,8 @@ import { auth } from "../firebase";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 const formSchema = z
   .object({
     emailAddress: z.string().email(),
@@ -46,7 +48,7 @@ const SignUpPage = () => {
       .then(async (userCredential) => {
         const user = userCredential.user;
         if (user) {
-          await fetch("http://localhost:3000/api/user", {
+          await fetch(`${API_URL}/api/user`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

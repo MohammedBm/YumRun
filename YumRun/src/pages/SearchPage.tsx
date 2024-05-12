@@ -7,7 +7,6 @@ import SortOptionDropdown from "@/components/SortOptionDropdown";
 import { db } from "@/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { set } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
 export type SearchState = {

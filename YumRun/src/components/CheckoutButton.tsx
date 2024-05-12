@@ -15,6 +15,8 @@ import LoginForm from "@/forms/LoginForm";
 import UserProfileForm from "@/forms/profile-forms/UserProfileForm";
 import LoadingButton from "./LoadingButton";
 
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 type Props = {
   onCheckout: (userFormData: UserFormData) => void;
   disabled: boolean;
@@ -33,7 +35,7 @@ export const CheckoutButton = ({ disabled, onCheckout, isLoading }: Props) => {
   const getUserData = async () => {
     if (auth.currentUser) {
       setisGetLoading(true);
-      await fetch(`http://localhost:3000/api/user/${auth.currentUser?.uid}`, {
+      await fetch(`${API_URL}/api/user/${auth.currentUser?.uid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
