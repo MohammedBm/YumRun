@@ -4,7 +4,7 @@ const router = Router();
 import { createUser, fetchUser, getAllUsers, updateCurrentUser } from './controller/User.Controller'
 import { createStore, fetchStoreById, fetchStorebyUserId, getAllStores, updateStore } from "./controller/Store.Controller";
 import { param } from "express-validator";
-import { createCheckoutSession, getMyOrders, stripeWebhookHandler } from "./controller/Order.Controller";
+import { createCheckoutSession, getMyOrders, getMyStoreOrders, stripeWebhookHandler } from "./controller/Order.Controller";
 import express from "express";
 
 // routers are the supp ui for the app
@@ -195,6 +195,8 @@ router.delete("/store/:id", () => { });
 //* Order Routers
 
 router.post("/order", getMyOrders)
+
+router.post("/order/store-orders", getMyStoreOrders)
 
 router.post("/order/checkout/create-checkout-session", createCheckoutSession)
 

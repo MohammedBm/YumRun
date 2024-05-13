@@ -52,6 +52,7 @@ type Props = {
   store?: Store;
   onSave: (storeFormData: FormData) => void;
   isLoading: boolean;
+  setIsFormFilled: boolean;
 };
 
 function ManageStoreForm({ onSave, isLoading, store }: Props) {

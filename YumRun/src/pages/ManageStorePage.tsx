@@ -1,9 +1,13 @@
 import { AuthContext } from "@/context/Auth";
-import ManageStoreForm from "@/forms/mange-store-form/ManageStoreForm";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Store } from "@/types";
+import { useGetMyStoreOrders } from "@/api/MyStore";
+import ManageStoreForm from "@/forms/mange-store-form/ManageStoreForm";
+import { OrderItemCard } from "@/components/OrderItemCard";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,7 +17,7 @@ type Props = {
   isLoading: boolean;
 };
 
-const ManageStorePage = () => {
+const ManageStorePage = ({}: Props) => {
   const { currentUser } = useContext(AuthContext);
   // import toast
   const [isLoading, setIsLoading] = useState(false);
@@ -104,6 +108,8 @@ const ManageStorePage = () => {
     }
   };
 
+  const { orders } = useGetMyStoreOrders();
+
   useEffect(() => {
     getStore();
   }, [currentUser]);
@@ -113,13 +119,33 @@ const ManageStorePage = () => {
     return <div>Loading...</div>;
   }
   return (
-    <ManageStoreForm
-      onSave={handleSubmit}
-      store={store}
-      setIsFormFilled={setIsFormFilled}
-      setIsLoading={setIsLoading}
-      isLoading={isLoading}
-    />
+    <Tabs defaultValue="orders">
+      <TabsList>
+        <TabsTrigger value="orders">Orders</TabsTrigger>
+        <TabsTrigger value="manage-store">Manage Store</TabsTrigger>
+      </TabsList>
+      <TabsContent
+        value="orders"
+        className="space-y-5 bg-gray-50 p-10 rounded-lg"
+      >
+        <h2 className="text-2xl font-bold">{orders?.length} active orders</h2>
+        {orders?.map((order) => (
+          <OrderItemCard order={order} />
+        ))}
+      </TabsContent>
+      <TabsContent
+        value="manage-store"
+        className="space-y-5 bg-gray-50 pg-10 rounded-lg"
+      >
+        <ManageStoreForm
+          onSave={handleSubmit}
+          store={store}
+          setIsFormFilled={setIsFormFilled}
+          setIsLoading={setIsLoading}
+          isLoading={isLoading}
+        />
+      </TabsContent>
+    </Tabs>
   );
 };
 

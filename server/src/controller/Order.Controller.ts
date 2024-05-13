@@ -39,6 +39,31 @@ export const getMyOrders = async (req, res) => {
   }
 }
 
+export const getMyStoreOrders = async (req, res) => {
+  try {
+    const store = await db.collection('stores').where('user', '==', req.body.userId).get()
+
+    if (store.size === 0) {
+      return res.status(404).json({ message: 'Store not found' })
+    }
+
+    const orders = await db.collection('orders').where('store._id', '==', store.docs[0].id).get()
+
+    const ordersData = orders.docs.map((order) => {
+      return {
+        id: order.id,
+        ...order.data()
+      }
+    })
+
+    res.json(ordersData)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: error });
+  }
+
+}
+
 export const stripeWebhookHandler = async (req, res) => {
   let event;
 

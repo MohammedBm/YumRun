@@ -46,5 +46,6 @@ export type Order = {
     addressLine1: string;
     city: string;
   };
-  store: Store
+  store: Store;
+  totalAmount: number;
 };
