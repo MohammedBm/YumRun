@@ -2,7 +2,7 @@ import { Router } from "express";
 import db from "./db";
 const router = Router();
 import { createUser, fetchUser, getAllUsers, updateCurrentUser } from './controller/User.Controller'
-import { createStore, fetchStoreById, fetchStorebyUserId, getAllStores, updateStore } from "./controller/Store.Controller";
+import { createStore, fetchStoreById, fetchStorebyUserId, getAllStores, updateOrderStatus, updateStore } from "./controller/Store.Controller";
 import { param } from "express-validator";
 import { createCheckoutSession, getMyOrders, getMyStoreOrders, stripeWebhookHandler } from "./controller/Order.Controller";
 import express from "express";
@@ -189,11 +189,11 @@ router.get("/storeid/:id", fetchStoreById);
 
 router.put("/store/:id", updateStore);
 
+router.patch('/order/:orderId/status', updateOrderStatus)
 
 router.delete("/store/:id", () => { });
 
 //* Order Routers
-
 router.post("/order", getMyOrders)
 
 router.post("/order/store-orders", getMyStoreOrders)

@@ -15,7 +15,6 @@ export const getAllStores = async (req, res) => {
   }
 };
 
-
 // Function to create a new store if the user does not already own one
 export const createStore = async (req, res) => {
   try {
@@ -207,3 +206,35 @@ export const fetchStoreById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching store' });
   }
 }
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { userId } = req.body;
+    const { orderId } = req.params;
+
+    const orderRef = db.collection('orders').doc(orderId);
+    const orderSnapshot = await orderRef.get();
+
+    // check if order exists
+    if (!orderSnapshot.exists) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // check if the user owns the store
+    if (orderSnapshot.data().store.user !== userId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    // update the order status
+    await orderRef.update({
+      status: status,
+    });
+
+    res.status(200).json({ message: 'Order status updated successfully' });
+    // Proceed with updating order status...
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating order status' });
+  }
+};
