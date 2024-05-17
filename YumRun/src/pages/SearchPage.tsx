@@ -129,7 +129,7 @@ export const SearchPage = () => {
     setSortOption(option);
     switch (option) {
       case "bestMatch":
-        filterResultsBySearch();
+        resetSearch();
         break;
       case "deliveryPrice":
         sortByDeliveryPrice();
@@ -145,10 +145,6 @@ export const SearchPage = () => {
       ...prevState,
       page: 1,
     }));
-  };
-
-  const filterResultsBySearch = () => {
-    // Apply search query filter if search query is provided
   };
 
   const sortByDeliveryPrice = () => {
@@ -174,7 +170,7 @@ export const SearchPage = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+    <div className="grid grid-cols-1 lg:grid-row-[250px_1fr] gap-5">
       <div id="cuisines-list">
         <CuisineFilter
           selectedCuisines={selectedCuisines}

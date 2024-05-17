@@ -8,7 +8,7 @@ const DesktopNav = () => {
       {auth.currentUser ? (
         <>
           <Link to="/order-status" className="font-bold hover:text-beep-100">
-            Order Status
+            My Orders
           </Link>
           <UsernameMenu />
         </>
