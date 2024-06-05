@@ -61,7 +61,7 @@ function ManageStoreForm({ onSave, isLoading, store }: Props) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       cuisines: [],
-      menuItems: [{ name: "", price: 0 }],
+      menuItems: [{ name: "", price: null }],
     },
   });
 
@@ -70,7 +70,7 @@ function ManageStoreForm({ onSave, isLoading, store }: Props) {
       return;
     }
 
-    const deliveryPriceFormatted = (store.deliveryPrice / 100).toFixed(2);
+    const deliveryPriceFormatted = store.deliveryPrice / 100;
     const menuItemsFormatted = store.menuItems.map((item) => ({
       ...item,
       price: (item.price / 100).toFixed(2),

@@ -1,5 +1,6 @@
-import LoadingButton from "@/components/LoadingButton";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -10,24 +11,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import LoadingButton from "@/components/LoadingButton";
+import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   email: z.string().optional(),
-  name: z.string().min(1, "required"),
-  addressLine1: z.string().min(1, "required"),
-  city: z.string().min(1, "required"),
-  country: z.string().min(1, "required"),
+  name: z.string().min(1, "name is required"),
+  addressLine1: z.string().min(1, "Address Line 1 is required"),
+  city: z.string().min(1, "City is required"),
+  country: z.string().min(1, "Country is required"),
 });
 
-type UserFormData = z.infer<typeof formSchema>;
+export type UserFormData = z.infer<typeof formSchema>;
+
+export type User = {
+  email: string;
+  name: string;
+  addressLine1: string;
+  city: string;
+  country: string;
+};
 
 type Props = {
+  user: User;
   onSave: (userProfileData: UserFormData) => void;
   isLoading: boolean;
-  user: UserFormData;
   title?: string;
   buttonText?: string;
 };
@@ -37,12 +46,16 @@ const UserProfileForm = ({
   isLoading,
   user,
   title = "User Profile",
-  buttonText = " Submit",
+  buttonText = "Submit",
 }: Props) => {
   const form = useForm<UserFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: user,
   });
+
+  useEffect(() => {
+    form.reset(user);
+  }, [user, form]);
 
   return (
     <Form {...form}>
@@ -51,10 +64,10 @@ const UserProfileForm = ({
         className="space-y-4 bg-gray-50 rounded-lg md:p-10"
       >
         <div>
-          <h2 className="text-2xl font-bold">
-            {title}
-            <FormDescription>View and edit your user profile</FormDescription>
-          </h2>
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <FormDescription>
+            View and change your profile information here
+          </FormDescription>
         </div>
         <FormField
           control={form.control}
@@ -63,12 +76,7 @@ const UserProfileForm = ({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Email"
-                  className="bg-white"
-                  disabled
-                />
+                <Input {...field} disabled className="bg-white" />
               </FormControl>
             </FormItem>
           )}
@@ -81,7 +89,7 @@ const UserProfileForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Name" className="bg-white" />
+                <Input {...field} className="bg-white" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,13 +102,9 @@ const UserProfileForm = ({
             name="addressLine1"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>Address Line</FormLabel>
+                <FormLabel>Address Line 1</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Address"
-                    className="bg-white"
-                  />
+                  <Input {...field} className="bg-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -110,10 +114,10 @@ const UserProfileForm = ({
             control={form.control}
             name="city"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1">
                 <FormLabel>City</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="City" className="bg-white" />
+                  <Input {...field} className="bg-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -123,21 +127,16 @@ const UserProfileForm = ({
             control={form.control}
             name="country"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1">
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Country"
-                    className="bg-white"
-                  />
+                  <Input {...field} className="bg-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
         {isLoading ? (
           <LoadingButton />
         ) : (

@@ -3,7 +3,7 @@ import deliver from "../assets/deliver.svg";
 
 export const BottomSection = () => {
   return (
-    <div className="mt-64 mb-24 grid md:grid-cols-2 gap-5">
+    <div className="mt-64 mb-24 grid gap-10 md:grid-cols-2 ">
       <img src={takeaway} />
       <div className="flex flex-col item-center justify-center gap-4 text-center">
         <span className="font-bold text-3xl tracking-tighter text-beep-100">

@@ -67,6 +67,12 @@ const SignUpPage = () => {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+
+        form.setError("emailAddress", {
+          type: "manual",
+          message: errorMessage,
+        });
+
         console.log(errorCode, errorMessage);
       });
   };
@@ -74,7 +80,7 @@ const SignUpPage = () => {
   return (
     <div className="flex flex-col items-center justify-between p-12">
       <h1 className="text-2xl">Sign up</h1>
-      <div className="max-w-md w-full ">
+      <div className="max-w-md w-full">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(createAccount)}

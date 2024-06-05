@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useToast } from "@/components/ui/use-toast";
-import { useParams } from "react-router-dom";
 
 const formSchema = z.object({
   emailAddress: z.string().email(),
@@ -44,6 +43,17 @@ const LoginForm = () => {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+
+        form.setError("emailAddress", {
+          type: "manual",
+          message: errorMessage,
+        });
+
+        form.setError("password", {
+          type: "manual",
+          message: errorMessage,
+        });
+
         console.log(errorCode, errorMessage);
       });
   };

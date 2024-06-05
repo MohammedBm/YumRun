@@ -1,10 +1,9 @@
-import React from "react";
 import Hero from "../assets/food.svg";
 
 export const AboutSection = () => {
   return (
-    <div className="mt-64  relative flex items-center justify-center flex-row ">
-      <div className="flex w-1/2">
+    <div className="mt-64  relative flex items-center justify-center flex-col md:flex-row ">
+      <div className="flex ">
         <img src={Hero} alt="" />
       </div>
       <div className="flex justify-center flex-1 flex-col">

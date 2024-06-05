@@ -60,25 +60,37 @@ const ManageStorePage = ({}: Props) => {
   const getStore = async () => {
     if (currentUser) {
       setIsGetLoading(true);
-      await fetch(`${API_URL}/api/store/${currentUser?.uid}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/store/${currentUser.uid}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status === 404) {
+          setIsFormFilled(false);
           setIsGetLoading(false);
-          setIsFormFilled(true);
-          setStore(data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          setIsGetLoading(false);
-        });
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setIsFormFilled(true);
+        setStore(data);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsGetLoading(false);
+      }
     }
   };
-
   const updateStore = async (storeFormData: FormData) => {
     setIsLoading(true);
     await fetch(`${API_URL}/api/store/${currentUser?.uid}`, {
@@ -115,6 +127,7 @@ const ManageStorePage = ({}: Props) => {
   }, [currentUser]);
   // ...
 
+  console.log("form loaded " + isFormFilled);
   if (isGetLoading) {
     return <div>Loading...</div>;
   }

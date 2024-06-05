@@ -1,18 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { auth } from "@/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import {
-  Dialog,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Button } from "./ui/button";
 import LoginForm from "@/forms/LoginForm";
-import UserProfileForm from "@/forms/profile-forms/UserProfileForm";
+import UserProfileForm, {
+  UserFormData,
+} from "@/forms/profile-forms/UserProfileForm";
 import LoadingButton from "./LoadingButton";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
